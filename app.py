@@ -1,18 +1,20 @@
+# Updated to use rice_yield_model.pkl instead of preprocessing_pipeline.pkl
+
 import pandas as pd
 import pickle
 import plotly.express as px
 from dash import Dash, dcc, html
 
-# Load model and pipeline
-with open("model_files/preprocessing_pipeline.pkl", "rb") as f:
-    pipeline = pickle.load(f)
+# Load trained model
+with open("model_files/rice_yield_model.pkl", "rb") as f:
+    model = pickle.load(f)
 
 # Load test data
 X_test = pd.read_csv("model_files/X_test.csv")
 y_test = pd.read_csv("model_files/y_test.csv")
 
-# Predict
-predictions = pipeline.predict(X_test)
+# Make predictions
+predictions = model.predict(X_test)
 
 # Create DataFrame for visualization
 pred_df = pd.DataFrame({
@@ -24,13 +26,18 @@ pred_df = pd.DataFrame({
 app = Dash(__name__)
 
 # Create scatter plot
-fig = px.scatter(pred_df, x='Actual', y='Predicted', trendline='ols',
-                 title="Actual vs Predicted Rice Yield",
-                 labels={'Actual': 'Actual Yield', 'Predicted': 'Predicted Yield'})
+fig = px.scatter(
+    pred_df,
+    x='Actual',
+    y='Predicted',
+    trendline='ols',
+    title="Actual vs Predicted Rice Yield",
+    labels={'Actual': 'Actual Yield', 'Predicted': 'Predicted Yield'}
+)
 
-# Layout
+# Define layout
 app.layout = html.Div([
-    html.H1("Crop Yield Prediction Dashboard"),
+    html.H1("Crop Yield Prediction Dashboard", style={'textAlign': 'center'}),
     dcc.Graph(figure=fig)
 ])
 
